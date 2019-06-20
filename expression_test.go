@@ -39,7 +39,7 @@ func TestIsGreaterThanExpression(t *testing.T) {
 		want     string
 	}{
 		{"key", 2, "key > 2"},
-		{"key", "val", "key > val"},
+		{"key", "2", "key > '2'"},
 	}
 
 	for _, tc := range cases {
@@ -57,7 +57,7 @@ func TestIsGreaterThanOrEqualsToExpression(t *testing.T) {
 		want     string
 	}{
 		{"key", 2, "key >= 2"},
-		{"key", "val", "key >= val"},
+		{"key", "2", "key >= '2'"},
 	}
 
 	for _, tc := range cases {
@@ -75,7 +75,7 @@ func TestIsLessThanExpression(t *testing.T) {
 		want     string
 	}{
 		{"key", 2, "key < 2"},
-		{"key", "val", "key < val"},
+		{"key", "2", "key < '2'"},
 	}
 
 	for _, tc := range cases {
@@ -93,7 +93,7 @@ func TestIsLessThanOrEqualsToExpression(t *testing.T) {
 		want     string
 	}{
 		{"key", 2, "key <= 2"},
-		{"key", "val", "key <= val"},
+		{"key", "2", "key <= '2'"},
 	}
 
 	for _, tc := range cases {
@@ -111,7 +111,7 @@ func TestIsEqualsToExpression(t *testing.T) {
 		want     string
 	}{
 		{"key", 2, "key = 2"},
-		{"key", "val", "key = val"},
+		{"key", "2", "key = '2'"},
 	}
 
 	for _, tc := range cases {
@@ -129,7 +129,7 @@ func TestIsNotEqualsToExpression(t *testing.T) {
 		want     string
 	}{
 		{"key", 2, "key <> 2"},
-		{"key", "val", "key <> val"},
+		{"key", "2", "key <> '2'"},
 	}
 
 	for _, tc := range cases {
@@ -163,9 +163,9 @@ func TestLogicalExpressionToString(t *testing.T) {
 		want        string
 	}{
 		{fury.IsEqualsTo("key", 1), nil, "key = 1"},
-		{fury.IsEqualsTo("key", 1), fury.IsEqualsTo("key", 2), "key = 1 OR key = 2"},
-		{fury.IsEqualsTo("key", 1), fury.And(fury.IsEqualsTo("key", 2)), "key = 1 OR key = 2"},
-		{fury.IsEqualsTo("key", 1), fury.And(fury.IsEqualsTo("key", 2), fury.IsEqualsTo("key", 3)), "key = 1 OR (key = 2 AND key = 3)"},
+		{fury.IsEqualsTo("key", 1), fury.IsEqualsTo("key", 2), "(key = 1 OR key = 2)"},
+		{fury.IsEqualsTo("key", 1), fury.And(fury.IsEqualsTo("key", 2)), "(key = 1 OR key = 2)"},
+		{fury.IsEqualsTo("key", 1), fury.And(fury.IsEqualsTo("key", 2), fury.IsEqualsTo("key", 3)), "(key = 1 OR (key = 2 AND key = 3))"},
 	}
 
 	for _, tc := range cases {
@@ -175,36 +175,3 @@ func TestLogicalExpressionToString(t *testing.T) {
 		}
 	}
 }
-
-// func TestLogicalExpressionToStringError(t *testing.T) {
-// 	cases := []struct {
-// 		expressions interface{}
-// 	}{
-// 		{[]*fury.Expression{fury.IsEqualsTo("key", 1), fury.IsEqualsTo("key", nil)}},
-// 		{[]*fury.Expression{fury.IsEqualsTo("key", 1), fury.IsEqualsTo("key", 2)}},
-// 	}
-
-// 	for _, tc := range cases {
-// 		_, err := fury.And(tc.expressions).ToString()
-// 		if err == nil {
-// 			t.Errorf("Error expected")
-// 		}
-// 	}
-// }
-
-// var logicalExpCases = []struct {
-// 	logicalOperator string
-// 	expressions     interface{}
-// 	want            *fury.LogicalExpression
-// }{
-// 	{"AND", []*fury.Expression{fury.IsEqualsTo("key", 1), fury.IsEqualsTo("key", 2)}},
-// }
-
-// func TestLogicalExpressionToString(t *testing.T) {
-// 	for _, tc := range expCases {
-// 		have, _ := fury.newExpression(tc.operator, tc.operand1, tc.operand2).ToString()
-// 		if have != tc.want {
-// 			t.Errorf("Error expected %v, found %v", tc.want, have)
-// 		}
-// 	}
-// }
