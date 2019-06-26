@@ -1,0 +1,33 @@
+version: '3'
+
+networks:
+  fury-integration-test:
+    driver: bridge
+  host:
+
+services:
+  go_tests:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.test
+    depends_on:
+      - postgres_db
+    volumes:
+      - $PWD:/go/src/github.com/nandaryanizar/fury
+    networks:
+      - fury-integration-test
+      - host
+  postgres_db:
+    image: postgres:9.5
+    ports:
+      - "5432:5432"
+    expose:
+      - "5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: pgadmin123
+      POSTGRES_DB: testdb
+    restart: on-failure
+    networks:
+      - fury-integration-test
+      - host

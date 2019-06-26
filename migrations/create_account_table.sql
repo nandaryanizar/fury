@@ -1,0 +1,8 @@
+CREATE TABLE account (
+   UserID serial PRIMARY KEY,
+   Username VARCHAR (50) UNIQUE NOT NULL,
+   Password VARCHAR (50) NOT NULL,
+   Email VARCHAR (355) UNIQUE NOT NULL,
+   CreatedOn TIMESTAMP NOT NULL,
+   LastLogin TIMESTAMP
+);

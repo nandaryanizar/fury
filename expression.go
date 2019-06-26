@@ -1,6 +1,7 @@
 package fury
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 )
@@ -12,22 +13,14 @@ type Expression struct {
 	operand2 interface{}
 }
 
-// ToString method convert Expression struct to string
-func (e *Expression) ToString() (string, error) {
-	var op2 string
-
-	switch e.operand2.(type) {
-	case int, float32, float64:
-		op2 = fmt.Sprintf("%v", e.operand2)
-	case string:
-		op2 = fmt.Sprintf("'%v'", e.operand2)
+// ToString method convert Expression struct to string and slice of arguments
+func (e *Expression) ToString() (string, []interface{}, error) {
+	if e.operator == "" || e.operand1 == "" || e.operand2 == nil {
+		return "", nil, errors.New("Error creating expression: missing operator or operand")
 	}
+	args := []interface{}{e.operand2}
 
-	if e.operator == "" || e.operand1 == "" || e.operand2 == nil || op2 == "" {
-		return "", fmt.Errorf("Error creating expression: missing operator or operand")
-	}
-
-	return fmt.Sprintf("%s %s %s", e.operand1, e.operator, op2), nil
+	return fmt.Sprintf("%s %s ?", e.operand1, e.operator), args, nil
 }
 
 // newExpression as factory function for Expression struct
@@ -81,24 +74,25 @@ type LogicalExpression struct {
 	expressions     []interface{}
 }
 
-// ToString method convert the LogicalExpression struct to string
-func (le *LogicalExpression) ToString() (string, error) {
+// ToString method convert the LogicalExpression struct to string and slice of arguments
+func (le *LogicalExpression) ToString() (string, []interface{}, error) {
 	if len(le.expressions) == 0 {
-		return "", nil
+		return "", nil, nil
 	}
 
-	out, err := walk(le)
+	out, args, err := walk(le)
 
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
-	return out, nil
+	return out, args, nil
 }
 
 // Traverse LogicalExpression struct to convert it to string
-func walk(lExp *LogicalExpression) (string, error) {
+func walk(lExp *LogicalExpression) (string, []interface{}, error) {
 	out := ""
+	args := []interface{}{}
 
 	countNonNil := 0
 	for i, val := range lExp.expressions {
@@ -121,16 +115,21 @@ func walk(lExp *LogicalExpression) (string, error) {
 
 		toStringMethod := exp.MethodByName(methodName)
 		if !toStringMethod.IsValid() {
-			return "", fmt.Errorf("Error: Couldn't find method %s in interface %v", methodName, exp)
+			return "", nil, fmt.Errorf("Error: Couldn't find method %s in interface %v", methodName, exp)
 		}
 
 		ret := toStringMethod.Call([]reflect.Value{})
 		// fmt.Println(ret)
-		if len(ret) != 2 {
-			return "", fmt.Errorf("Error: Insufficient return value, expected 2 found %d", len(ret))
+		if len(ret) != 3 {
+			return "", nil, fmt.Errorf("Error: Insufficient return value, expected 3 found %d", len(ret))
 		}
-		if err, ok := ret[1].Interface().(error); ok && err != nil {
-			return "", err
+
+		if err, ok := ret[2].Interface().(error); ok && err != nil {
+			return "", nil, err
+		}
+
+		if retArgs, ok := ret[1].Interface().([]interface{}); ok {
+			args = append(args, retArgs...)
 		}
 
 		if retStr, ok := ret[0].Interface().(string); ok {
@@ -141,7 +140,8 @@ func walk(lExp *LogicalExpression) (string, error) {
 	if countNonNil > 1 {
 		out = fmt.Sprintf("(%s)", out)
 	}
-	return out, nil
+
+	return out, args, nil
 }
 
 // newLogicalExpression is the factory function for LogicalExpression struct

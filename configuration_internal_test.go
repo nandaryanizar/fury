@@ -79,7 +79,7 @@ func TestInitializeDefault(t *testing.T) {
 	for _, tc := range cases {
 		tc.have.initialize()
 		if !reflect.DeepEqual(tc.have, tc.want) {
-			t.Errorf("Error expected %v, found %v", tc.want, tc.have)
+			t.Errorf("Error: expected %v, found %v", tc.want, tc.have)
 		}
 	}
 }
