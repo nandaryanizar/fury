@@ -24,7 +24,7 @@ Fury support basic query such as SELECT, INSERT, UPDATE, DELETE. Here's a few ex
 
 To use this library we should have PostgreSQL up and running. First, we need to create environment variable file, for example:
 
-```
+```yaml
 # Environment variable example
 # database.yaml
 
@@ -45,7 +45,7 @@ DATABASE_CONNMAXXLIFETIME=0
 
 To connect to the database, we can use `Connect` function. The function will return the DB struct consists of connection pool, configuration, and query struct. Only at the end of the program we need to close the DB connection by calling `Close` method.
 
-```
+```go
 // Create DB connection pool
 db, err := fury.Connect("database.yaml")
 
@@ -55,7 +55,7 @@ defer db.Close()
 
 This return the result of SELECT query to pointer(s) to struct. For INSERT, UPDATE and DELETE, this library will generate the query and arguments based on the passed pointer(s) to struct. So for this example, supposed we have below struct for example:
 
-```
+```go
 type Account struct {
 	UserID    int `fury:"primary_key,auto_increment"`
 	Username  string
@@ -76,7 +76,7 @@ Fury also support some tags, currently `primary_key` and `auto_increment`. These
 
 Currently, there's two main method to generate a SELECT query. The first is `Find` method. Supposed we want to generate query as simple as `SELECT * FROM account`, we can do this:
 
-```
+```go
 // Create an empty slice of pointer to Account struct
 accounts := []*Account{}
 
@@ -88,7 +88,7 @@ The results will be appended to the slice. If the slice is not empty, it will us
 
 We also can use pointer to struct to be passed to the method. But only the first record will be scanned to the struct. Below is the example:
 
-```
+```go
 // Create an empty Account struct
 account := Account{}
 
@@ -100,7 +100,7 @@ db.Find(&account)
 
 If we want to add condition to our query we can use `Where` query option. Supposed we want to add condition from previous query to return only the record with `Username` equals to `nandaryanizar`, we can do as below:
 
-```
+```go
 // Call find method with addition query option parameter
 db.Find(&account, fury.Where(fury.IsEqualsTo("username", "nandaryanizar")))
 
@@ -113,7 +113,7 @@ The above call will generate query SELECT * FROM account WHERE username = 'nanda
 
 When there are `Where` query option passed as parameter, it will be treated with AND query condition.
 
-```
+```go
 // Call find method with addition query option parameter
 db.Find(&account,
     fury.Where(fury.IsEqualsTo("username", "nandaryanizar")),
@@ -135,7 +135,7 @@ db.Find(&account,
 
 To create condition with OR query condition, we can create it like below:
 
-```
+```go
 db.Find(&account,
     fury.Where(
         Or(
@@ -147,7 +147,7 @@ db.Find(&account,
 
 If we want to query that use the primary key as the condition, we only need to fill the field in the struct without having to explicitly add `Where` query option.
 
-```
+```go
 // Create struct with non-zero field tagged with `primary_key`
 account := Account{
     UserID: 1,
@@ -172,7 +172,7 @@ db.Find(&accounts)
 
 There are several query option other than `Where`, they can be used like this:
 
-```
+```go
 // This will select only column username and email
 // Generate `SELECT username, email FROM account`
 db.Find(&account, Select("username", "email"))
@@ -197,7 +197,7 @@ Although the code for group by query has been added, it is not quite useful righ
 
 The second method to get the generate query is `First` method. The method will get only the first record, it is equivalent to add `Limit` query option with argument 1 to `Find` method.
 
-```
+```go
 // This first method will generate `SELECT * FROM account LIMIT 1`
 db.First(&account)
 
@@ -209,7 +209,7 @@ db.Find(&account, fury.Limit(1))
 
 The `Insert` method only takes `Table` as working query option to specify the table name. The `Insert` method will generate insert query, omitting the field with `auto_increment` tag. The `Insert` method can be used as follows:
 
-```
+```go
 // Create and initialize the struct that wants to be inserted to database
 account := Account{
     Username:  "nandaryanizar",
@@ -251,7 +251,7 @@ In current implementation, `Update` method will generate UPDATE query based on a
 
 `Update` method can be used like this:
 
-```
+```go
 // Create and initialize the struct that wants to be updated to database
 account := Account{
     Username:  "nandaryanizar",
@@ -299,7 +299,7 @@ The `Delete` method pretty much works the same way as `Update` method, but curre
 
 We can use `Delete` method like below:
 
-```
+```go
 // To update multiple record
 accounts := []*Account{
     &Account{
