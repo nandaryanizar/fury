@@ -8,7 +8,7 @@ import (
 
 func TestExpressionToStringIfEmpty(t *testing.T) {
 	want := ""
-	have, _, _ := (&fury.Expression{}).ToString()
+	have, _, _ := new(fury.Expression).ToString()
 	if have != want {
 		t.Errorf("Error: expected %v, found %v", want, have)
 	}

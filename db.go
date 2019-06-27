@@ -9,8 +9,11 @@ type DB struct {
 }
 
 // Connect to database, instantiate DB struct for querying to database.
-func Connect(config *Configuration) (*DB, error) {
-	config.initialize()
+func Connect(configFileName string) (*DB, error) {
+	config, err := LoadConfiguration(configFileName)
+	if err != nil {
+		return nil, err
+	}
 
 	newConnPool, err := NewConnectionPool(config)
 	if err != nil {

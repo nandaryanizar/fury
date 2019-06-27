@@ -92,7 +92,7 @@ func TestFindQuery(t *testing.T) {
 		{
 			&[]*Account{},
 			fury.Where,
-			fury.IsGreaterThan("account.userid", 0),
+			fury.IsLessThanOrEqualsTo("account.userid", 2),
 			db.Find,
 			&[]*Account{
 				&Account{
@@ -136,13 +136,13 @@ func TestInsertQuery(t *testing.T) {
 	}{
 		{
 			&Account{
-				UserID: 3,
+				UserID: 11,
 			},
 			&Account{
-				UserID:    3,
-				Username:  "test3",
-				Password:  "test3",
-				Email:     "test3@test.com",
+				UserID:    11,
+				Username:  "test11",
+				Password:  "test11",
+				Email:     "test11@test.com",
 				CreatedOn: time.Date(2016, 06, 22, 19, 10, 25, 0, time.FixedZone("", 0)),
 				LastLogin: time.Date(2016, 06, 22, 19, 10, 25, 0, time.FixedZone("", 0)),
 			},
@@ -150,26 +150,26 @@ func TestInsertQuery(t *testing.T) {
 		{
 			&[]*Account{
 				&Account{
-					UserID: 4,
+					UserID: 12,
 				},
 				&Account{
-					UserID: 5,
+					UserID: 13,
 				},
 			},
 			&[]*Account{
 				&Account{
-					UserID:    4,
-					Username:  "test4",
-					Password:  "test4",
-					Email:     "test4@test.com",
+					UserID:    12,
+					Username:  "test12",
+					Password:  "test12",
+					Email:     "test12@test.com",
 					CreatedOn: time.Date(2016, 06, 22, 19, 10, 25, 0, time.FixedZone("", 0)),
 					LastLogin: time.Date(2016, 06, 22, 19, 10, 25, 0, time.FixedZone("", 0)),
 				},
 				&Account{
-					UserID:    5,
-					Username:  "test5",
-					Password:  "test5",
-					Email:     "test5@test.com",
+					UserID:    13,
+					Username:  "test13",
+					Password:  "test13",
+					Email:     "test13@test.com",
 					CreatedOn: time.Date(2016, 06, 22, 19, 10, 25, 0, time.FixedZone("", 0)),
 					LastLogin: time.Date(2016, 06, 22, 19, 10, 25, 0, time.FixedZone("", 0)),
 				},
@@ -203,26 +203,26 @@ func TestUpdateQuery(t *testing.T) {
 		{
 			&[]*Account{
 				&Account{
-					UserID: 4,
+					UserID: 5,
 				},
 				&Account{
-					UserID: 5,
+					UserID: 6,
 				},
 			},
 			&[]*Account{
 				&Account{
-					UserID:    4,
-					Username:  "test4",
-					Password:  "test4test",
-					Email:     "test4@test.com",
+					UserID:    5,
+					Username:  "test5",
+					Password:  "test5test",
+					Email:     "test5@test.com",
 					CreatedOn: time.Date(2016, 06, 22, 19, 10, 25, 0, time.FixedZone("", 0)),
 					LastLogin: time.Date(2016, 06, 22, 19, 10, 25, 0, time.FixedZone("", 0)),
 				},
 				&Account{
-					UserID:    5,
-					Username:  "test5test",
-					Password:  "test5",
-					Email:     "test5@test.com",
+					UserID:    6,
+					Username:  "test6test",
+					Password:  "test6",
+					Email:     "test6@test.com",
 					CreatedOn: time.Date(2016, 06, 22, 19, 10, 25, 0, time.FixedZone("", 0)),
 					LastLogin: time.Date(2016, 06, 22, 19, 10, 25, 0, time.FixedZone("", 0)),
 				},
@@ -264,7 +264,7 @@ func TestUpdateWhereQuery(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		if err := db.Update(tc.want, fury.Where(fury.IsEqualsTo("account.username", "test2"))); err != nil {
+		if err := db.Update(tc.want, fury.Where(fury.IsEqualsTo("account.username", "test7"))); err != nil {
 			t.Error(err)
 		}
 
@@ -294,10 +294,10 @@ func TestDeleteQuery(t *testing.T) {
 		{
 			&[]*Account{
 				&Account{
-					UserID: 4,
+					UserID: 8,
 				},
 				&Account{
-					UserID: 5,
+					UserID: 9,
 				},
 			},
 		},
@@ -335,11 +335,11 @@ func TestDeleteWhereQuery(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		if err := db.Delete(tc.want, fury.Where(fury.IsEqualsTo("account.username", "test2"))); err != nil {
+		if err := db.Delete(tc.want, fury.Where(fury.IsEqualsTo("account.username", "test10"))); err != nil {
 			t.Error(err)
 		}
 
-		if err := db.Find(tc.have, fury.Where(fury.IsEqualsTo("account.username", "test2"))); err != nil {
+		if err := db.Find(tc.have, fury.Where(fury.IsEqualsTo("account.username", "test10"))); err != nil {
 			t.Error(err)
 		}
 

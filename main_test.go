@@ -23,13 +23,7 @@ type Account struct {
 
 func TestMain(m *testing.M) {
 	var err error
-	db, err = fury.Connect(&fury.Configuration{
-		Username: "postgres",
-		Password: "pgadmin123",
-		Host:     "postgres_db",
-		Port:     "5432",
-		DBName:   "testdb",
-	})
+	db, err = fury.Connect("database.yaml")
 
 	if err != nil {
 		panic(err)

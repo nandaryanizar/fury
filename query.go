@@ -429,7 +429,6 @@ func (q *Query) prepareInsertQuery() error {
 		return errors.New("Columns and argument length not match")
 	}
 	query.args = append(query.args, args...)
-
 	if len(cols) < 1 || len(args) < 1 {
 		return errors.New("Columns or argument slice cannot be empty")
 	}

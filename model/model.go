@@ -36,7 +36,7 @@ func (m *Model) GetColumnNamesAndValues(includeAutoInc bool) ([]string, []interf
 
 // GetScanPtrByColumnNames return scanner pointers ordered as specifed in the input slice.
 func (m *Model) GetScanPtrByColumnNames(columns []string) []interface{} {
-	pointers := []interface{}{}
+	var pointers []interface{}
 
 	for _, col := range columns {
 		if f, ok := m.Fields[col]; ok {
