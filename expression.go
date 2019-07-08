@@ -1,6 +1,10 @@
 package fury
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+	"reflect"
+)
 
 // Expression struct to store query expression
 type Expression struct {
@@ -9,15 +13,14 @@ type Expression struct {
 	operand2 interface{}
 }
 
-// ToString method convert Expression struct to string
-func (e *Expression) ToString() (string, error) {
-
-	op2 := fmt.Sprintf("%v", e.operand2)
-	if e.operator == "" || e.operand1 == "" || e.operand2 == nil || op2 == "" {
-		return "", fmt.Errorf("Error creating expression: missing operator or operand")
+// ToString method convert Expression struct to string and slice of arguments
+func (e *Expression) ToString() (string, []interface{}, error) {
+	if e.operator == "" || e.operand1 == "" || e.operand2 == nil {
+		return "", nil, errors.New("Error creating expression: missing operator or operand")
 	}
+	args := []interface{}{e.operand2}
 
-	return fmt.Sprintf("%s %s %s", e.operand1, e.operator, op2), nil
+	return fmt.Sprintf("%s %s ?", e.operand1, e.operator), args, nil
 }
 
 // newExpression as factory function for Expression struct
@@ -71,24 +74,74 @@ type LogicalExpression struct {
 	expressions     []interface{}
 }
 
-// ToString method convert the LogicalExpression struct to string
-func (le *LogicalExpression) ToString() (out string, err error) {
+// ToString method convert the LogicalExpression struct to string and slice of arguments
+func (le *LogicalExpression) ToString() (string, []interface{}, error) {
 	if len(le.expressions) == 0 {
-		return "", nil
+		return "", nil, nil
 	}
 
-	if err = walk(&out, le); err != nil {
-		return "", err
+	out, args, err := walk(le)
+
+	if err != nil {
+		return "", nil, err
 	}
 
-	return out, nil
+	return out, args, nil
 }
 
-func walk(out *string, lExp *LogicalExpression) error {
-	// for _, in := range lExp.expressions {
+// Traverse LogicalExpression struct to convert it to string
+func walk(lExp *LogicalExpression) (string, []interface{}, error) {
+	out := ""
+	args := []interface{}{}
 
-	// }
-	return nil
+	countNonNil := 0
+	for i, val := range lExp.expressions {
+		if val == nil {
+			continue
+		}
+
+		countNonNil++
+		if i > 0 {
+			out += fmt.Sprintf(" %s ", lExp.logicalOperator)
+		}
+
+		if str, ok := val.(string); ok {
+			out += str
+			continue
+		}
+
+		exp := reflect.ValueOf(val)
+		methodName := "ToString"
+
+		toStringMethod := exp.MethodByName(methodName)
+		if !toStringMethod.IsValid() {
+			return "", nil, fmt.Errorf("Error: Couldn't find method %s in interface %v", methodName, exp)
+		}
+
+		ret := toStringMethod.Call([]reflect.Value{})
+		// fmt.Println(ret)
+		if len(ret) != 3 {
+			return "", nil, fmt.Errorf("Error: Insufficient return value, expected 3 found %d", len(ret))
+		}
+
+		if err, ok := ret[2].Interface().(error); ok && err != nil {
+			return "", nil, err
+		}
+
+		if retArgs, ok := ret[1].Interface().([]interface{}); ok {
+			args = append(args, retArgs...)
+		}
+
+		if retStr, ok := ret[0].Interface().(string); ok {
+			out += retStr
+		}
+	}
+
+	if countNonNil > 1 {
+		out = fmt.Sprintf("(%s)", out)
+	}
+
+	return out, args, nil
 }
 
 // newLogicalExpression is the factory function for LogicalExpression struct

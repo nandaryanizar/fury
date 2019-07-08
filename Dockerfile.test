@@ -1,0 +1,12 @@
+FROM golang:1.12-alpine
+
+# Install git
+RUN set -ex; \
+    apk update; \
+    apk add --no-cache git
+
+# Set working directory
+WORKDIR /go/src/github.com/nandaryanizar/fury
+
+# Run tests
+CMD go get -v ./... && CGO_ENABLED=0 go test ./...
