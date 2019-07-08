@@ -276,12 +276,7 @@ func (q *Query) prepareSelectColumn() (string, error) {
 	}
 
 	if len(q.columns) == 0 {
-		tableName, err := q.getTableName()
-		if err != nil {
-			return "", err
-		}
-
-		out = fmt.Sprintf("%s.*", tableName)
+		out = "*"
 	}
 
 	return fmt.Sprintf("SELECT %s", out), nil

@@ -82,12 +82,12 @@ func TestSelectColumns(t *testing.T) {
 			"SELECT user.userid, user.username",
 		},
 		{
-			[]interface{}{"COUNT(user.*)"},
-			"SELECT COUNT(user.*)",
+			[]interface{}{"COUNT(*)"},
+			"SELECT COUNT(*)",
 		},
 		{
 			[]interface{}{},
-			"SELECT user.*",
+			"SELECT *",
 		},
 	}
 
@@ -424,14 +424,14 @@ func TestPrepareSelect(t *testing.T) {
 			&Query{
 				tableName:       "user",
 				useModelAsCond:  false,
-				columns:         []interface{}{"COUNT(user.*)"},
+				columns:         []interface{}{"COUNT(*)"},
 				whereConditions: []interface{}{IsGreaterThan("user.counter", 1)},
 				limit:           1,
 				offset:          2,
 				groups:          []interface{}{"user.counter"},
 				orders:          []interface{}{"user.counter DESC"},
 			},
-			"SELECT COUNT(user.*) FROM user WHERE user.counter > $1 GROUP BY user.counter ORDER BY user.counter DESC LIMIT 1 OFFSET 2;",
+			"SELECT COUNT(*) FROM user WHERE user.counter > $1 GROUP BY user.counter ORDER BY user.counter DESC LIMIT 1 OFFSET 2;",
 		},
 	}
 
