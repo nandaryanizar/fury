@@ -211,6 +211,7 @@ The `Insert` method only takes `Table` as working query option to specify the ta
 
 ```go
 // Create and initialize the struct that wants to be inserted to database
+// The struct represent the table that wants to be inserted
 account := Account{
     Username:  "nandaryanizar",
     Password:  "test",
@@ -224,6 +225,7 @@ account := Account{
 db.Insert(&account)
 
 // Insert also support pointer to slice of pointer to struct
+// Each element of slice represent the row that will be affected
 accounts := []*Account{
     &Account{
         Username:  "nandaryanizar",

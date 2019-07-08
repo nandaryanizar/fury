@@ -1,5 +1,9 @@
 package fury
 
+import (
+	"time"
+)
+
 // DB object consists of DB connection pool and configuration
 // 	Use Connect(config *Configuration) to create new instance of this struct.
 type DB struct {
@@ -22,6 +26,23 @@ func Connect(configFileName string) (*DB, error) {
 
 	db := &DB{
 		ConnectionPooler: newConnPool,
+		config:           config,
+	}
+
+	return db, nil
+}
+
+// ConnectMock to database, instantiate DB struct for querying to database.
+func ConnectMock(mockPool ConnectionPooler) (*DB, error) {
+	config := &Configuration{
+		MaxRetries:      2,
+		ConnMaxLifetime: time.Hour,
+		MaxIdleConns:    0,
+		MaxOpenConns:    0,
+	}
+
+	db := &DB{
+		ConnectionPooler: mockPool,
 		config:           config,
 	}
 
